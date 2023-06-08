@@ -1,0 +1,37 @@
+settings:
+  # data path
+  image_root: "../data/train/DCM"
+  label_root: "../data/train/outputs_json"
+
+  # save path
+  saved_dir: "../trained_models"
+
+  # seed
+  seed: 21
+
+  # classes of hand bone
+  classes: [
+    'finger-1', 'finger-2', 'finger-3', 'finger-4', 'finger-5',
+    'finger-6', 'finger-7', 'finger-8', 'finger-9', 'finger-10',
+    'finger-11', 'finger-12', 'finger-13', 'finger-14', 'finger-15',
+    'finger-16', 'finger-17', 'finger-18', 'finger-19', 'Trapezium',
+    'Trapezoid', 'Capitate', 'Hamate', 'Scaphoid', 'Lunate',
+    'Triquetrum', 'Pisiform', 'Radius', 'Ulna']
+
+train:
+  models: 'fcn_resnet50'
+  num_epochs: 20
+  batch_size: 16
+  shuffle: True
+  num_workers: 4
+  drop_last: True
+  lr: 0.0001
+  log_interval: 10
+  weight_decay: 0.00001
+
+val:
+  batch_size: 2
+  shuffle: False
+  num_workers: 2
+  drop_last: False
+  val_every: 1

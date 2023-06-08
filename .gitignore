@@ -1,0 +1,5 @@
+# 디렉토리
+data/
+code/wandb
+code/__pycache__
+trained_models/

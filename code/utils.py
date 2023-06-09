@@ -56,6 +56,8 @@ def load_config(config_file):
 
 def get_exp_name(config_path: str):
     """현재 진행 중인 실험의 이름을 설정하는 함수입니다.
+    yaml 파일의 이름을 바탕으로 설정됩니다.
+    ex) config_path: ../configs/sy/01_baseline.yaml -> 01_baseline
 
     Args:
         config_path (str): yaml config 파일의 경로입니다.

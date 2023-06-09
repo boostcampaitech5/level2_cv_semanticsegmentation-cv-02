@@ -17,7 +17,7 @@ class MyModels():
     -> 모든 클래스 함수들은 모델을 반환해야만 하며, 모델의 출력이 fcn과
     다른 경우 my_trainer.py에서 새로운 trainer 함수를 만들어주어야 합니다.
     """
-    def __init__(self, settings, train_cfg, val_cfg):
+    def __init__(self, settings):
         self.num_class = len(settings['classes'])
 
     def fcn_resnet50(self):

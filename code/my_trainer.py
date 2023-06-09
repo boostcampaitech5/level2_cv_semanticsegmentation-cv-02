@@ -16,6 +16,7 @@ def fcn_trainer(save_file_name, settings, train_cfg, val_cfg,
     """baseline으로 제공된 fcn 모델 학습을 위한 trainer 함수입니다.
 
     Args:
+        save_file_name (_type_): 학습한 모델을 저장할 때 사용할 이름입니다.
         settings (_type_): 학습 시 설정할 기본 값들이 담겨있는 dictionary 입니다.
         train_cfg (_type_): 모델 학습에 사용할 설정 값들이 담겨있는 dictionary 입니다.
         val_cfg (_type_): evaluation에 사용할 설정 값들이 담겨있는 dictionary 입니다.

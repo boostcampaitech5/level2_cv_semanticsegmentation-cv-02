@@ -128,7 +128,7 @@ class XRayInferenceDataset(Dataset):
     
     def __getitem__(self, item):
         image_name = self.filenames[item]
-        image_path = os.path.join(self.settings['tt_image_root'], image_name)
+        image_path = osp.join(self.settings['tt_image_root'], image_name)
         
         image = cv2.imread(image_path)
         image = image / 255.
@@ -138,7 +138,7 @@ class XRayInferenceDataset(Dataset):
             result = self.transforms(**inputs)
             image = result["image"]
 
-        # to tenser will be done later
+        # to tensor will be done later
         image = image.transpose(2, 0, 1)    # make channel first
         
         image = torch.from_numpy(image).float()

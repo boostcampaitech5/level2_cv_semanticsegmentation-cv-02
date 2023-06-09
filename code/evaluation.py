@@ -78,6 +78,9 @@ def validation(settings, device, epoch, model,
         "Epoch": epoch,
         "Valid/Mean_Epoch_Loss": round(total_loss / num_val_batches, 4),
         "Valid/Average_Dice_Coef": round(avg_dice, 4),
+        "Valid/finger-16": round(dices_per_class[15].item(), 4),
+        "Valid/Trapezoid": round(dices_per_class[20].item(), 4),
+        "Valid/Pisiform": round(dices_per_class[26].item(), 4)
     })
 
     return avg_dice

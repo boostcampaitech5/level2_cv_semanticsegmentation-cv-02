@@ -39,12 +39,23 @@ def parse_args():
     return args
 
 
-def main(configs, save_file_name):
+def main(args):
     """모델 학습을 위해 필요한 값들을 정의하고, training 함수를 호출하기 위해 사용합니다.
 
     Args:
-        configs (_type_): 불러온 yaml 파일에 담겨 있는 설정 값들을 모아둔 dict입니다.
+        args (_type_): 사용자가 직접 입력한 arguments입니다.
     """
+    # yaml 파일 불러오기
+    configs = load_config(args.config_path)
+    pprint(configs)
+
+    # wandb에 config 업로드하기
+    wandb.config.update(configs)
+
+    # wandb 실험 이름 설정
+    run_name = get_exp_name(args.config_path)
+    wandb.run.name = run_name
+
     # sep_cfgs 함수를 이용하여, 사용하기 쉽게 분리
     settings, train_cfg, val_cfg, _ = sep_cfgs(configs)
 
@@ -99,14 +110,14 @@ def main(configs, save_file_name):
     )
 
     # set model, optimizer, loss function
-    my_model = MyModels(settings, train_cfg, val_cfg)
+    my_model = MyModels(settings)
     model = getattr(my_model, train_cfg['models'])() # getattr 함수를 사용하여 cfg로만 모델을 불러올 수 있도록 함
 
     criterion = nn.BCEWithLogitsLoss()
     optimizer = optim.Adam(params=model.parameters(), lr=train_cfg['lr'], weight_decay=train_cfg['weight_decay'])
 
     # 실험 시작
-    fcn_trainer(save_file_name, settings, train_cfg, val_cfg,
+    fcn_trainer(run_name, settings, train_cfg, val_cfg,
                 model, train_loader, valid_loader, criterion, optimizer,
                 num_train_batches, num_val_batches)
 
@@ -119,17 +130,6 @@ if __name__ == '__main__':
     args = parse_args()
     print(f"config_path : {args.config_path}")
 
-    # yaml 파일 불러오기
-    cfgs = load_config(args.config_path)
-    pprint(cfgs)
-
-    # wandb에 config 업로드하기
-    wandb.config.update(cfgs)
-
-    # wandb 실험 이름 설정
-    run_name = get_exp_name(args.config_path)
-    wandb.run.name = run_name
-
     # 실험 시작
-    main(cfgs, run_name)
+    main(args)
     

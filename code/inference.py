@@ -18,7 +18,23 @@ from torch.utils.data import DataLoader
 # custom library
 from my_dataset import XRayInferenceDataset
 from my_models import MyModels
-from utils import load_config, sep_cfgs
+from utils import load_config, sep_cfgs, get_exp_name
+
+
+def parse_args():
+    """inference에 필요한 yaml 파일의 경로 및 model을 가져오기 위해 사용합니다.
+
+    Returns:
+        _type_: 사용자가 입력한 arguments를 반환합니다.
+    """
+    parser = ArgumentParser()
+
+    parser.add_argument('--config_path', type=str, default='../configs/baseline.yaml', help='yaml files to test a segmentation model (default: ../configs/baseline.yaml)')
+    parser.add_argument('--model_path', type=str, default='../trained_models/fcn_resnet50_best.pth', help='model weight path (default: ../trained_models/fcn_resnet50_best.pth)')
+
+    args = parser.parse_args()
+
+    return args
 
 
 def encode_mask_to_rle(mask):
@@ -61,22 +77,6 @@ def decode_rle_to_mask(rle, height, width):
     return img.reshape(height, width)
 
 
-def parse_args():
-    """inference에 필요한 yaml 파일의 경로 및 model을 가져오기 위해 사용합니다.
-
-    Returns:
-        _type_: 사용자가 입력한 arguments를 반환합니다.
-    """
-    parser = ArgumentParser()
-
-    parser.add_argument('--config_path', type=str, default='../configs/baseline.yaml', help='yaml files to test a segmentation model (default: ../configs/baseline.yaml)')
-    parser.add_argument('--model_path', type=str, default='../trained_models/fcn_resnet50_best.pth', help='model weight path (default: ../trained_models/fcn_resnet50_best.pth)')
-
-    args = parser.parse_args()
-
-    return args
-
-
 def test(settings, model, data_loader, thr=0.5):
     CLASS2IND = {v: i for i, v in enumerate(settings['classes'])}
     IND2CLASS = {v: k for k, v in CLASS2IND.items()}
@@ -109,12 +109,15 @@ def test(settings, model, data_loader, thr=0.5):
     return rles, filename_and_class
 
 
-def main(configs):
+def main(args):
+    configs = load_config(args.config_path)
+    pprint(configs)
+
     settings, train_cfg, _, test_cfg = sep_cfgs(configs)
 
     pngs = {
         osp.relpath(osp.join(root, fname), start=settings['tt_image_root'])
-        for root, _dirs, files in os.walk(settings['tt_iamge_root'])
+        for root, _dirs, files in os.walk(settings['tt_image_root'])
         for fname in files
         if osp.splitext(fname)[1].lower() == ".png"
     }
@@ -128,14 +131,15 @@ def main(configs):
                              num_workers=test_cfg['num_workers'],
                              drop_last=test_cfg['drop_last'])
 
-    my_model = MyModels(settings)    
+    my_model = MyModels(settings)
     model = getattr(my_model, train_cfg['models'])()
+    model = torch.load(args.model_path)
 
-    rles, filename_and_class = test(model, test_loader)
+    rles, filename_and_class = test(settings, model, test_loader)
 
     # To CSV
     classes, filename = zip(*[x.split("_") for x in filename_and_class])
-    image_name = [os.path.basename(f) for f in filename]
+    image_name = [osp.basename(f) for f in filename]
     df = pd.DataFrame({
         "image_name": image_name,
         "class": classes,
@@ -145,7 +149,8 @@ def main(configs):
     if not osp.exists(settings['submission_dir']):
         os.mkdir(settings['submission_dir'])
     
-    submission_filename = osp.join(settings['submission_dir'], train_cfg['models'] + '.csv')
+
+    submission_filename = osp.join(settings['submission_dir'],  get_exp_name(args.config_path) + '.csv')
     df.to_csv(submission_filename, index=False)
 
 
@@ -153,9 +158,5 @@ if __name__ == "__main__":
     args = parse_args()
     print(f"config_path : {args.config_path}")
 
-    # yaml 파일 불러오기
-    cfgs = load_config(args.config_path)
-    pprint(cfgs)
-
     # inference
-    main(cfgs)
+    main(args)

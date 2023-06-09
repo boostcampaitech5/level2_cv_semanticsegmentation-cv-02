@@ -2,9 +2,11 @@ settings:
   # data path
   image_root: "../data/train/DCM"
   label_root: "../data/train/outputs_json"
+  tt_image_root: "../data/test/DCM"
 
   # save path
   saved_dir: "../trained_models"
+  submission_dir: "../submissions"
 
   # seed
   seed: 21
@@ -21,10 +23,10 @@ settings:
 train:
   models: 'fcn_resnet50'
   num_epochs: 20
-  batch_size: 16
+  batch_size: 4
   shuffle: True
   num_workers: 4
-  drop_last: True
+  drop_last: False
   lr: 0.0001
   log_interval: 10
   weight_decay: 0.00001
@@ -35,3 +37,9 @@ val:
   num_workers: 2
   drop_last: False
   val_every: 1
+
+test:
+  batch_size: 2
+  shuffle: False
+  num_workers: 2
+  drop_last: False

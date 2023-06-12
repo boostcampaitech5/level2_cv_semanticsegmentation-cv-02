@@ -42,7 +42,10 @@ def validation(settings, device, epoch, model,
         for images, masks in tqdm(data_loader, total=len(data_loader)):
             images, masks = images.to(device), masks.to(device)
 
-            outputs = model(images)['out']
+            if settings['lib'] == 'smp':
+                outputs = model(images)
+            else:
+                outputs = model(images)['out']
 
             output_h, output_w = outputs.size(-2), outputs.size(-1)
             mask_h, mask_w = masks.size(-2), masks.size(-1)

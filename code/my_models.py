@@ -61,5 +61,11 @@ class MyModels():
             in_channels=3,
             classes=29,
         )
+    
+        model.segmentation_head = nn.Sequential(
+            nn.Conv2d(512, self.num_class, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1)),
+            nn.UpsamplingBilinear2d(scale_factor=32.0),
+            nn.Identity()
+        )
 
         return model

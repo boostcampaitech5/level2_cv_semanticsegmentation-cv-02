@@ -77,4 +77,4 @@ def sep_cfgs(configs):
     Returns:
         _type_: 분리한 configs 파일을 반환합니다.
     """
-    return configs['settings'], configs['data'], configs['train'], configs['val'], configs['test']
+    return configs['settings'], configs['train'], configs['val'], configs['test']

@@ -93,8 +93,12 @@ def test(settings, model, data_loader, thr=0.5):
         n_class = len(settings['classes'])
 
         for step, (images, image_names) in tqdm(enumerate(data_loader), total=len(data_loader)):
-            images = images.cuda()    
-            outputs = model(images)['out']
+            images = images.cuda()
+            
+            if settings['lib'] == 'smp':
+                outputs = model(images)
+            else:
+                outputs = model(images)['out']
             
             # restore original size
             outputs = F.interpolate(outputs, size=(2048, 2048), mode="bilinear")
@@ -114,7 +118,7 @@ def main(args):
     configs = load_config(args.config_path)
     pprint(configs)
 
-    settings, data_cfg, train_cfg, _, test_cfg = sep_cfgs(configs)
+    settings, train_cfg, _, test_cfg = sep_cfgs(configs)
 
     pngs = {
         osp.relpath(osp.join(root, fname), start=settings['tt_image_root'])
@@ -124,9 +128,9 @@ def main(args):
     }
 
     my_augs = MyAugs()
-    tf = getattr(my_augs, data_cfg['augs'])()
+    tf_test = getattr(my_augs, test_cfg['augs'])()
 
-    test_dataset = XRayInferenceDataset(pngs, settings, transforms=tf)
+    test_dataset = XRayInferenceDataset(pngs, settings, transforms=tf_test)
     test_loader = DataLoader(dataset=test_dataset,
                              batch_size=test_cfg['batch_size'],
                              shuffle=test_cfg['shuffle'],

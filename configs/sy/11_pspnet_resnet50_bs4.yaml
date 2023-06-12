@@ -19,14 +19,15 @@ settings:
     'finger-16', 'finger-17', 'finger-18', 'finger-19', 'Trapezium',
     'Trapezoid', 'Capitate', 'Hamate', 'Scaphoid', 'Lunate',
     'Triquetrum', 'Pisiform', 'Radius', 'Ulna']
-    
-data:
-  augs: 'dh_best_augs'
 
+  # library
+  lib: "smp"
+    
 train:
+  augs: 'resize_512'
   models: 'pspnet_resnet50'
   num_epochs: 40
-  batch_size: 2
+  batch_size: 4
   shuffle: True
   num_workers: 4
   drop_last: False
@@ -35,6 +36,7 @@ train:
   weight_decay: 0.00001
 
 val:
+  augs: 'resize_512'
   batch_size: 2
   shuffle: False
   num_workers: 2
@@ -42,6 +44,7 @@ val:
   val_every: 1
 
 test:
+  augs: 'resize_512'
   batch_size: 2
   shuffle: False
   num_workers: 2

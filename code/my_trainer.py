@@ -84,3 +84,6 @@ def fcn_trainer(save_file_name, settings, train_cfg, val_cfg,
 
                 filename = save_file_name + "_best.pth" # 학습한 모델의 이름으로 best.pth를 저장함
                 save_model(model, settings['saved_dir'], filename)
+
+
+# TODO: gradient accumulation trainer 구현

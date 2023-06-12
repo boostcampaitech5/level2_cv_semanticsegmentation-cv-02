@@ -19,7 +19,7 @@ settings:
     'finger-16', 'finger-17', 'finger-18', 'finger-19', 'Trapezium',
     'Trapezoid', 'Capitate', 'Hamate', 'Scaphoid', 'Lunate',
     'Triquetrum', 'Pisiform', 'Radius', 'Ulna']
-    
+        
 data:
   augs: 'resize_512'
 
@@ -28,10 +28,10 @@ train:
   num_epochs: 40
   batch_size: 8
   shuffle: True
-  num_workers: 8
-  drop_last: True
+  num_workers: 4
+  drop_last: False
   lr: 0.0001
-  log_interval: 25
+  log_interval: 10
   weight_decay: 0.00001
 
 val:

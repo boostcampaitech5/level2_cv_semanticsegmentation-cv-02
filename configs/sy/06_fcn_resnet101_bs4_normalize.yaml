@@ -1,3 +1,7 @@
+# 학습 안정성을 위해 tranfrom에 ImageNet mean, std로 normalize를 추가.
+# ImageNet data와 X-Ray data간의 차이가 커서 성능에 영향이 있을지는 모르겠음.
+# -> 오히려 학습이 불안정해지는 현상이 관측되었음.
+
 settings:
   # data path
   image_root: "../data/train/DCM"
@@ -19,19 +23,19 @@ settings:
     'finger-16', 'finger-17', 'finger-18', 'finger-19', 'Trapezium',
     'Trapezoid', 'Capitate', 'Hamate', 'Scaphoid', 'Lunate',
     'Triquetrum', 'Pisiform', 'Radius', 'Ulna']
-    
+        
 data:
-  augs: 'resize_512'
+  augs: 'resize_512_imagenet_normalize'
 
 train:
-  models: 'fcn_resnet50'
+  models: 'fcn_resnet101'
   num_epochs: 40
-  batch_size: 8
+  batch_size: 4
   shuffle: True
   num_workers: 8
-  drop_last: True
+  drop_last: False
   lr: 0.0001
-  log_interval: 25
+  log_interval: 10
   weight_decay: 0.00001
 
 val:

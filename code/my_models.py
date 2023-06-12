@@ -2,6 +2,9 @@
 from torchvision import models
 import torch.nn as nn
 
+# external-library
+import segmentation_models_pytorch as smp
+
 
 class MyModels():
     """
@@ -20,6 +23,7 @@ class MyModels():
     def __init__(self, settings):
         self.num_class = len(settings['classes'])
 
+    # torchvision
     def fcn_resnet50(self):
         model = models.segmentation.fcn_resnet50(pretrained=True)
 
@@ -48,3 +52,14 @@ class MyModels():
 
         return model
     
+    # smp (https://github.com/qubvel/segmentation_models.pytorch)
+    def pspnet_resnet50(self):
+        model = smp.PSPNet(
+            encoder_name="resnet50",
+            encoder_depth=5,
+            encoder_weights="imagenet",
+            in_channels=3,
+            classes=29,
+        )
+
+        return model

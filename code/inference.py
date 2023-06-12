@@ -18,6 +18,7 @@ from torch.utils.data import DataLoader
 # custom library
 from my_dataset import XRayInferenceDataset
 from my_models import MyModels
+from my_augmentations import MyAugs
 from utils import load_config, sep_cfgs, get_exp_name
 
 
@@ -113,7 +114,7 @@ def main(args):
     configs = load_config(args.config_path)
     pprint(configs)
 
-    settings, train_cfg, _, test_cfg = sep_cfgs(configs)
+    settings, data_cfg, train_cfg, _, test_cfg = sep_cfgs(configs)
 
     pngs = {
         osp.relpath(osp.join(root, fname), start=settings['tt_image_root'])
@@ -122,7 +123,8 @@ def main(args):
         if osp.splitext(fname)[1].lower() == ".png"
     }
 
-    tf = A.Resize(512, 512)
+    my_augs = MyAugs()
+    tf = getattr(my_augs, data_cfg['augs'])()
 
     test_dataset = XRayInferenceDataset(pngs, settings, transforms=tf)
     test_loader = DataLoader(dataset=test_dataset,

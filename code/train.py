@@ -19,6 +19,7 @@ from utils import load_config, get_exp_name, set_seed, sep_cfgs
 from my_trainer import fcn_trainer
 from my_dataset import XRayDataset
 from my_models import MyModels
+from my_augmentations import MyAugs
 
 # visualization
 # import matplotlib.pyplot as plt
@@ -57,7 +58,7 @@ def main(args):
     wandb.run.name = run_name
 
     # sep_cfgs 함수를 이용하여, 사용하기 쉽게 분리
-    settings, train_cfg, val_cfg, _ = sep_cfgs(configs)
+    settings, data_cfg, train_cfg, val_cfg, _ = sep_cfgs(configs)
 
     # seed 세팅
     set_seed(settings['seed'])
@@ -85,7 +86,8 @@ def main(args):
     jsons = sorted(jsons)
 
     # 데이터셋 정의
-    tf = A.Resize(512, 512)
+    my_augs = MyAugs()
+    tf = getattr(my_augs, data_cfg['augs'])()
 
     train_dataset = XRayDataset(pngs, jsons, settings, is_train=True, transforms=tf)
     valid_dataset = XRayDataset(pngs, jsons, settings, is_train=False, transforms=tf)

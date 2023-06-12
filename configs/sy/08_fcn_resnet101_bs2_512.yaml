@@ -1,3 +1,8 @@
+# 학습 초반 실험 07의 validation dice coeff가 빠르게 높아지는 원인을 분석하고자 실험을 계획
+# 실험 07에서 cuda OOM으로 인해 bs를 2로 낮추고, resize를 512 -> 1024로 변경하다 보니
+# validation dice coeff의 빠른 향상 원인이 무엇인지 알기 어려웠음
+# 따라서 bs: 2로 고정 후 원래 resize 값인 512로 재실험
+
 settings:
   # data path
   image_root: "../data/train/DCM"
@@ -19,19 +24,19 @@ settings:
     'finger-16', 'finger-17', 'finger-18', 'finger-19', 'Trapezium',
     'Trapezoid', 'Capitate', 'Hamate', 'Scaphoid', 'Lunate',
     'Triquetrum', 'Pisiform', 'Radius', 'Ulna']
-    
+        
 data:
   augs: 'resize_512'
-
+  
 train:
-  models: 'fcn_resnet50'
+  models: 'fcn_resnet101'
   num_epochs: 40
-  batch_size: 8
+  batch_size: 2
   shuffle: True
-  num_workers: 8
-  drop_last: True
+  num_workers: 4
+  drop_last: False
   lr: 0.0001
-  log_interval: 25
+  log_interval: 10
   weight_decay: 0.00001
 
 val:

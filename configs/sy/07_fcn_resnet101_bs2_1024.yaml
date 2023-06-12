@@ -1,3 +1,6 @@
+# 입력 이미지 크기를 512 -> 1024로 키워 작은 부위들에 대한 성능을 높이고자 실험을 진행
+# cuda OOM으로 인해 bs를 2로 낮추어 실험을 진행 -> gradient accumulation code 구현을 계획하게 됨
+
 settings:
   # data path
   image_root: "../data/train/DCM"
@@ -19,19 +22,19 @@ settings:
     'finger-16', 'finger-17', 'finger-18', 'finger-19', 'Trapezium',
     'Trapezoid', 'Capitate', 'Hamate', 'Scaphoid', 'Lunate',
     'Triquetrum', 'Pisiform', 'Radius', 'Ulna']
-    
+        
 data:
-  augs: 'resize_512'
+  augs: 'resize_1024'
 
 train:
-  models: 'fcn_resnet50'
+  models: 'fcn_resnet101'
   num_epochs: 40
-  batch_size: 8
+  batch_size: 2
   shuffle: True
-  num_workers: 8
-  drop_last: True
+  num_workers: 4
+  drop_last: False
   lr: 0.0001
-  log_interval: 25
+  log_interval: 10
   weight_decay: 0.00001
 
 val:

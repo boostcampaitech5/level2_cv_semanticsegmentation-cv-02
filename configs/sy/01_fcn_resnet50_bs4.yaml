@@ -19,10 +19,13 @@ settings:
     'finger-16', 'finger-17', 'finger-18', 'finger-19', 'Trapezium',
     'Trapezoid', 'Capitate', 'Hamate', 'Scaphoid', 'Lunate',
     'Triquetrum', 'Pisiform', 'Radius', 'Ulna']
+    
+data:
+  augs: 'resize_512'
 
 train:
   models: 'fcn_resnet50'
-  num_epochs: 20
+  num_epochs: 40
   batch_size: 4
   shuffle: True
   num_workers: 4

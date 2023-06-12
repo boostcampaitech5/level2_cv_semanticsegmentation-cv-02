@@ -19,11 +19,12 @@ settings:
     'finger-16', 'finger-17', 'finger-18', 'finger-19', 'Trapezium',
     'Trapezoid', 'Capitate', 'Hamate', 'Scaphoid', 'Lunate',
     'Triquetrum', 'Pisiform', 'Radius', 'Ulna']
-        
-data:
-  augs: 'resize_512'
-  
+
+  # library
+  lib: "torchvision"
+
 train:
+  augs: 'resize_512'
   models: 'deeplabv3_resnet101'
   num_epochs: 40
   batch_size: 4
@@ -35,6 +36,7 @@ train:
   weight_decay: 0.00001
 
 val:
+  augs: 'resize_512'
   batch_size: 2
   shuffle: False
   num_workers: 2
@@ -42,6 +44,7 @@ val:
   val_every: 1
 
 test:
+  augs: 'resize_512'
   batch_size: 2
   shuffle: False
   num_workers: 2

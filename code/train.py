@@ -16,10 +16,10 @@ from torch.utils.data import DataLoader
 
 # custom modules
 from utils import load_config, get_exp_name, set_seed, sep_cfgs
-from my_trainer import fcn_trainer
 from my_dataset import XRayDataset
 from my_models import MyModels
 from my_augmentations import MyAugs
+from my_trainer import MyTrainer
 
 # visualization
 # import matplotlib.pyplot as plt
@@ -58,7 +58,7 @@ def main(args):
     wandb.run.name = run_name
 
     # sep_cfgs 함수를 이용하여, 사용하기 쉽게 분리
-    settings, data_cfg, train_cfg, val_cfg, _ = sep_cfgs(configs)
+    settings, train_cfg, val_cfg, _ = sep_cfgs(configs)
 
     # seed 세팅
     set_seed(settings['seed'])
@@ -87,10 +87,11 @@ def main(args):
 
     # 데이터셋 정의
     my_augs = MyAugs()
-    tf = getattr(my_augs, data_cfg['augs'])()
+    tf_train = getattr(my_augs, train_cfg['augs'])()
+    tf_valid = getattr(my_augs, val_cfg['augs'])()
 
-    train_dataset = XRayDataset(pngs, jsons, settings, is_train=True, transforms=tf)
-    valid_dataset = XRayDataset(pngs, jsons, settings, is_train=False, transforms=tf)
+    train_dataset = XRayDataset(pngs, jsons, settings, is_train=True, transforms=tf_train)
+    valid_dataset = XRayDataset(pngs, jsons, settings, is_train=False, transforms=tf_valid)
 
     num_train_batches = math.ceil(len(train_dataset) / train_cfg['batch_size'])
     num_val_batches = math.ceil(len(valid_dataset) / val_cfg['batch_size'])
@@ -119,9 +120,11 @@ def main(args):
     optimizer = optim.Adam(params=model.parameters(), lr=train_cfg['lr'], weight_decay=train_cfg['weight_decay'])
 
     # 실험 시작
-    fcn_trainer(run_name, settings, train_cfg, val_cfg,
-                model, train_loader, valid_loader, criterion, optimizer,
-                num_train_batches, num_val_batches)
+    my_trainer = MyTrainer(run_name, settings, train_cfg, val_cfg,
+                           model, train_loader, valid_loader, criterion, optimizer,
+                           num_train_batches, num_val_batches)
+    trainer = getattr(my_trainer, 'base_trainer')()
+    trainer()
 
 
 if __name__ == '__main__':

@@ -1,4 +1,4 @@
-## Baseline 코드 사용법 (2023-06-09 updated)
+## Baseline 코드 사용법 (2023-06-13 updated)
 ### Settings
 1. `git clone ~` 명령어를 사용하여 repository를 복제합니다.
 2. 기본으로 제공되는 data를 `level2_cv_semanticsegmentation-cv-02/` 아래로 복사합니다.

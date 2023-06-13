@@ -85,7 +85,8 @@ val: # validation에 사용할 값들입니다.
   num_workers: 2
   drop_last: False
   val_every: 1 # val_every 값에 따라 evaluation 주기가 결정됩니다.
-
+  val_save_limit: 10 # best model을 저장하는 개수입니다.
+  
 test: # inference에 사용할 값들입니다.
   augs: 'resize_512'
   batch_size: 2

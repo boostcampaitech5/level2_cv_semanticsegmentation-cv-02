@@ -4,6 +4,8 @@ import torch
 # external library
 import wandb
 
+#os
+import os
 # custom library
 from evaluation import validation
 from utils import save_model
@@ -55,7 +57,7 @@ class MyTrainer():
         model = self.model.to(self.device)
 
         best_dice = 0.
-
+        saved_models = []
         # training loop
         for epoch in range(self.train_cfg['num_epochs']):
             model.train()
@@ -94,17 +96,23 @@ class MyTrainer():
             })
             
             # evaluation
-            if (epoch + 1) % self.val_cfg['val_every'] == 0: # val_every에 따라 evaluation을 수행
+            if (epoch + 1) % self.val_cfg['val_every'] == 0:
                 dice = validation(self.settings, self.device, epoch + 1,
                                 model, self.val_loader, self.criterion, self.num_val_batches) # wandb 기록은 validation 함수 내부에서 진행됨
 
-                # 이번 에폭 dice가 기존 best dice보다 높으면 모델을 저장
                 if best_dice < dice:
                     print(f"Best performance at epoch: {epoch + 1}, {best_dice:.4f} -> {dice:.4f}")
-                    print(f"Save model in {self.settings['saved_dir']}")                
                     best_dice = dice
-
-                    filename = self.save_file_name + "_best.pth" # 학습한 모델의 이름으로 best.pth를 저장함
-                    save_model(model, self.settings['saved_dir'], filename)
-
+                    
+                    if len(saved_models) >= self.val_cfg['val_save_interval']: 
+                        # Delete the oldest model
+                        oldest_model_path = saved_models.pop(0)
+                        os.remove(oldest_model_path)
+                        print(f"Deleted the oldest model: {oldest_model_path}")
+                    
+                    # Save the current model
+                    save_path = os.path.join(self.settings['saved_dir'], f"{self.train_cfg['models']}_{epoch+1}_{dice:.4f}.pt")
+                    save_model(model, self.settings['saved_dir'], save_path)
+                    saved_models.append(save_path)
+                    print(f"Saved model: {save_path}")
     # TODO: gradient accumulation trainer 구현

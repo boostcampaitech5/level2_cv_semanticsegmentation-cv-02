@@ -42,7 +42,8 @@ val:
   num_workers: 2
   drop_last: False
   val_every: 1
-
+  val_save_limit: 10
+  
 test:
   augs: 'resize_512'
   batch_size: 2

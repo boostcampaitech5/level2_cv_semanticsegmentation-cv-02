@@ -12,6 +12,7 @@ level2_cv_semanticsegmentation-cv-02
 │   ├── evaluation.py : 학습한 모델의 성능을 평가할 때 사용하는 함수들이 정의되어 있습니다.
 │   ├── inference.py : submission을 위한 csv 파일을 만들 때 사용합니다.
 │   ├── metrics.py : 성능 평가 시 사용하는 metric들이 정의되어 있습니다.
+│   ├── my_augmentations.py : 학습/검증/추론 시 사용하는 augmentations이 정의되어 있습니다.
 │   ├── my_dataset.py : 학습/평가에 사용할 데이터들을 구조화하는 dataset class가 정의되어 있습니다.
 │   ├── my_models.py : 모델 종류들이 정의되어 있습니다.
 │   ├── my_trainer.py : 모델을 학습시킬 때 사용하는 train 함수들이 정의되어 있습니다.
@@ -28,7 +29,7 @@ level2_cv_semanticsegmentation-cv-02
 |
 ├── submissions : inference.py를 통해 생성한 csv 파일이 저장됩니다. (infernece.py를 실행하면 자동으로 디렉토리가 만들어집니다)
 |
-├── trained_models : 실험에 사용할 yaml 파일들을 모아놓은 폴더입니다. (push는 가능하지만, .gitignore에 추가되어 있습니다)
+├── trained_models : 학습 과정에서 저장된 .pth 파일들을 모아둔 폴더입니다. (push는 가능하지만, .gitignore에 추가되어 있습니다.)
 │
 ├── .gitignore : commit하지 않을 폴더, 파일들을 기록해두는 곳입니다.
 ├── .gitmessage.txt : commit template 입니다. 사용법은 아래에서 설명드리겠습니다.
@@ -38,7 +39,7 @@ level2_cv_semanticsegmentation-cv-02
 예를 들자면, `configs/sy/01_fcn_resnet50_bs4.yaml` 처럼 만들어주시면 됩니다.<br>
 yaml 파일의 구조는 다음과 같습니다.
 ```yaml
-# (2023-06-09 updated)
+# (2023-06-13 updated)
 settings: # 실험을 위해 기본적으로 세팅하는 값들입니다.
   # data path (학습에 사용할 데이터의 경로를 정의합니다)
   # 위에서 얘기한 방식대로 디렉토리를 구성했을 경우, 경로는 그대로 사용하시면 됩니다.
@@ -61,8 +62,12 @@ settings: # 실험을 위해 기본적으로 세팅하는 값들입니다.
     'finger-16', 'finger-17', 'finger-18', 'finger-19', 'Trapezium',
     'Trapezoid', 'Capitate', 'Hamate', 'Scaphoid', 'Lunate',
     'Triquetrum', 'Pisiform', 'Radius', 'Ulna']
+  
+  # library
+  lib: 'smp' # 'torchvision', 'smp'를 지원합니다. lib에 선언된 값에 따라 trainer에서 model I/O 가 달라집니다.
 
 train: # train에 사용할 값들입니다.
+  augs: 'resize_512' # train에 사용할 augmentation의 종류로, my_augmentations.py에 정의된 클래스 함수의 이름으로 작성해주시면 됩니다.
   models: 'fcn_resnet50' # 제일 중요한 부분으로, my_models.py에 작성된 docstring을 꼭 읽어주세요.
   num_epochs: 40 # 총 에폭입니다.
   batch_size: 8 # train 데이터의 batch size입니다.
@@ -74,6 +79,7 @@ train: # train에 사용할 값들입니다.
   weight_decay: 0.00001 # optimizer의 weight_decay 인자에 들어갈 값입니다.
 
 val: # validation에 사용할 값들입니다.
+  augs: 'resize_512'
   batch_size: 2
   shuffle: False
   num_workers: 2
@@ -81,6 +87,7 @@ val: # validation에 사용할 값들입니다.
   val_every: 1 # val_every 값에 따라 evaluation 주기가 결정됩니다.
 
 test: # inference에 사용할 값들입니다.
+  augs: 'resize_512'
   batch_size: 2
   shuffle: False
   num_workers: 2

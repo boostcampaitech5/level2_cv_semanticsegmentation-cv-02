@@ -69,19 +69,18 @@ class MyModels():
         )
 
         return model
-    
+   
     def deeplabv3plus_xception41(self):
         model = smp.DeepLabV3Plus(
             encoder_name='tu-xception41',
             encoder_depth=5,
             encoder_weights='imagenet',
             in_channels=3,
-            classes=29
-        )
-
+            classes=self.num_class)
+        
         return model
-    
-    def deeplabv3plus_xception41p(self):
+
+     def deeplabv3plus_xception41p(self):
         model = smp.DeepLabV3Plus(
             encoder_name='tu-xception41p',
             encoder_depth=5,
@@ -98,29 +97,65 @@ class MyModels():
             encoder_depth=5,
             encoder_weights='imagenet',
             in_channels=3,
-            classes=29
-        )
-
+            classes=self.num_class)
+          
         return model
 
     def unet_resnet50(self):
         model = smp.Unet(
-            encoder_name='resnet50',
-            encoder_depth=5,
-            encoder_weights='imagenet',
-            in_channels=3,
-            classes=29,
+            encoder_name="resnet50",        
+            encoder_weights="imagenet",    
+            in_channels=3,                  
+            classes=self.num_class,     
         )
 
         return model
-    
+      
     def unet_resnet101(self):
         model = smp.Unet(
-            encoder_name='resnet101',
-            encoder_depth=5,
-            encoder_weights='imagenet',
-            in_channels=3,
-            classes=29
+            encoder_name="resnet101",        
+            encoder_weights="imagenet",    
+            in_channels=3,                  
+            classes=self.num_class,     
+        )
+
+        return model
+        
+    def unet_efficientnetb4(self):
+        model = smp.Unet(
+            encoder_name="efficientnet-b4",        
+            encoder_weights="imagenet",    
+            in_channels=3,                  
+            classes=self.num_class,     
+        )
+
+        return model
+
+    def unet_mitb4(self):
+        model = smp.Unet(
+            encoder_name="mit_b4",        
+            encoder_weights="imagenet",    
+            in_channels=3,                  
+            classes=self.num_class,     
+        )
+
+        return model
+
+    def unetplusplus_resnet50(self):
+        model = smp.UnetPlusPlus(
+            encoder_name="resnet50",
+            encoder_weights="imagenet",    
+            in_channels=3,                  
+            classes=self.num_class,   
+        )
+        return model
+
+    def manet_resnet50(self):
+        model = smp.MAnet(
+            encoder_name="resnet50",
+            encoder_weights="imagenet",    
+            in_channels=3,                  
+            classes=self.num_class,   
         )
 
         return model

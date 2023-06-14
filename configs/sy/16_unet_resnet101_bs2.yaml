@@ -21,34 +21,34 @@ settings:
     'Triquetrum', 'Pisiform', 'Radius', 'Ulna']
 
   # library
-  lib: "torchvision"
+  lib: "smp"
 
   # loss function
-  creterion: 'combined_loss'
+  criterion: "combined_loss"
     
 train:
-  augs: 'resize_512'
-  models: 'fcn_resnet50'
-  num_epochs: 40
-  batch_size: 8
+  augs: 'dh_best_augs'
+  models: 'unet_resnet101'
+  num_epochs: 100
+  batch_size: 2
   shuffle: True
   num_workers: 8
-  drop_last: True
-  lr: 0.0001
-  log_interval: 25
+  drop_last: False
+  lr: 0.0003
+  log_interval: 40
   weight_decay: 0.00001
 
 val:
-  augs: 'resize_512'
+  augs: 'resize_1024'
   batch_size: 2
   shuffle: False
   num_workers: 2
   drop_last: False
   val_every: 1
   val_save_limit: 10
-  
+
 test:
-  augs: 'resize_512'
+  augs: 'resize_1024'
   batch_size: 2
   shuffle: False
   num_workers: 2

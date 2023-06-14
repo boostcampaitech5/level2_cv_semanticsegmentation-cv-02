@@ -78,3 +78,12 @@ def sep_cfgs(configs):
         _type_: 분리한 configs 파일을 반환합니다.
     """
     return configs['settings'], configs['train'], configs['val'], configs['test']
+
+
+def custom_collate_fn(sample):
+    img, label = list(zip(*sample))
+    
+    img = np.array(img, dtype=np.float32)
+    label = np.array(label, dtype=np.float32)
+
+    return img, label

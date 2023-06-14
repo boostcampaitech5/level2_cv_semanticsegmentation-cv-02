@@ -69,3 +69,58 @@ class MyModels():
         )
 
         return model
+    
+    def deeplabv3plus_xception41(self):
+        model = smp.DeepLabV3Plus(
+            encoder_name='tu-xception41',
+            encoder_depth=5,
+            encoder_weights='imagenet',
+            in_channels=3,
+            classes=29
+        )
+
+        return model
+    
+    def deeplabv3plus_xception41p(self):
+        model = smp.DeepLabV3Plus(
+            encoder_name='tu-xception41p',
+            encoder_depth=5,
+            encoder_weights='imagenet',
+            in_channels=3,
+            classes=29
+        )
+
+        return model
+
+    def deeplabv3plus_xception65(self):
+        model = smp.DeepLabV3Plus(
+            encoder_name='tu-xception65',
+            encoder_depth=5,
+            encoder_weights='imagenet',
+            in_channels=3,
+            classes=29
+        )
+
+        return model
+
+    def unet_resnet50(self):
+        model = smp.Unet(
+            encoder_name='resnet50',
+            encoder_depth=5,
+            encoder_weights='imagenet',
+            in_channels=3,
+            classes=29,
+        )
+
+        return model
+    
+    def unet_resnet101(self):
+        model = smp.Unet(
+            encoder_name='resnet101',
+            encoder_depth=5,
+            encoder_weights='imagenet',
+            in_channels=3,
+            classes=29
+        )
+
+        return model

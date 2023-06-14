@@ -4,8 +4,10 @@ import torch
 # external library
 import wandb
 
-#os
+# built-in library
 import os
+from collections import deque
+
 # custom library
 from evaluation import validation
 from utils import save_model
@@ -57,7 +59,7 @@ class MyTrainer():
         model = self.model.to(self.device)
 
         best_dice = 0.
-        saved_models = []
+        saved_models = deque()
         # training loop
         for epoch in range(self.train_cfg['num_epochs']):
             model.train()
@@ -106,13 +108,19 @@ class MyTrainer():
                     
                     if len(saved_models) >= self.val_cfg['val_save_interval']: 
                         # Delete the oldest model
-                        oldest_model_path = saved_models.pop(0)
+                        oldest_model_path = saved_models.popleft()
                         os.remove(oldest_model_path)
                         print(f"Deleted the oldest model: {oldest_model_path}")
                     
                     # Save the current model
-                    save_path = os.path.join(self.settings['saved_dir'], f"{self.train_cfg['models']}_{epoch+1}_{dice:.4f}.pt")
-                    save_model(model, self.settings['saved_dir'], save_path)
+                    save_dir_path = os.path.join(self.settings['saved_dir'], self.save_file_name)
+                    if not os.path.exists(save_dir_path):
+                        os.mkdir(save_dir_path)
+
+                    save_path = os.path.join(save_dir_path, f"{self.train_cfg['models']}_{epoch+1}_{dice:.4f}.pt")
+                    save_model(model, save_dir_path, save_path)
                     saved_models.append(save_path)
+
                     print(f"Saved model: {save_path}")
+
     # TODO: gradient accumulation trainer 구현

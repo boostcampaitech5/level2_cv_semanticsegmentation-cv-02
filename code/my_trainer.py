@@ -14,7 +14,7 @@ from utils import save_model
 
 
 class MyTrainer():
-    def __init__(self, save_file_name, settings, train_cfg, val_cfg,
+    def __init__(self, save_dir_name, settings, train_cfg, val_cfg,
                  model, train_loader, val_loader, criterion, optimizer,
                  num_train_batches, num_val_batches):
         """모델 학습에 필요한 arguments를 입력받습니다.
@@ -32,7 +32,7 @@ class MyTrainer():
             num_train_batches (_type_): training 중 mean epoch loss를 연산하기 위해 필요한 총 batch의 개수입니다.
             num_val_batches (_type_): evaluation 중 mean epoch loss를 연산하기 위해 필요한 총 batch의 개수입니다.
         """
-        self.save_file_name = save_file_name
+        self.save_dir_name = save_dir_name
         
         self.settings = settings
         self.train_cfg = train_cfg
@@ -67,6 +67,7 @@ class MyTrainer():
             total_loss = 0.
             for step, (images, masks) in enumerate(self.train_loader):
                 # gpu 연산을 위해 device 할당
+                images, masks = torch.from_numpy(images).float(), torch.from_numpy(masks).float()
                 images, masks = images.to(self.device), masks.to(self.device)
 
                 # forward
@@ -106,21 +107,19 @@ class MyTrainer():
                     print(f"Best performance at epoch: {epoch + 1}, {best_dice:.4f} -> {dice:.4f}")
                     best_dice = dice
                     
-                    if len(saved_models) >= self.val_cfg['val_save_interval']: 
+                    if len(saved_models) >= self.val_cfg['val_save_limit']: 
                         # Delete the oldest model
                         oldest_model_path = saved_models.popleft()
                         os.remove(oldest_model_path)
-                        print(f"Deleted the oldest model: {oldest_model_path}")
+                        print(f"{oldest_model_path} is deleted")
                     
                     # Save the current model
-                    save_dir_path = os.path.join(self.settings['saved_dir'], self.save_file_name)
-                    if not os.path.exists(save_dir_path):
-                        os.mkdir(save_dir_path)
+                    save_dir = os.path.join(self.settings['saved_dir'], self.save_dir_name)
+                    save_file_name = f"{self.train_cfg['models']}_{epoch+1}_{dice:.4f}.pt"
 
-                    save_path = os.path.join(save_dir_path, f"{self.train_cfg['models']}_{epoch+1}_{dice:.4f}.pt")
-                    save_model(model, save_dir_path, save_path)
-                    saved_models.append(save_path)
+                    save_model(model, save_dir, save_file_name)
+                    saved_models.append(save_file_name)
 
-                    print(f"Saved model: {save_path}")
+                    print(f"Model is saved in {os.path.join(save_dir, save_file_name)}")
 
     # TODO: gradient accumulation trainer 구현

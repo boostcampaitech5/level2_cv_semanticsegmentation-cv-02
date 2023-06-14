@@ -89,6 +89,16 @@ def sep_cfgs(configs):
     """
     return configs['settings'], configs['train'], configs['val'], configs['test']
 
+  
+def custom_collate_fn(sample):
+    img, label = list(zip(*sample))
+    
+    img = np.array(img, dtype=np.float32)
+    label = np.array(label, dtype=np.float32)
+
+    return img, label
+
+  
 # utility function
 # this does not care overlap
 def label2rgb(label):

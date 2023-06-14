@@ -15,11 +15,12 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 
 # custom modules
-from utils import load_config, get_exp_name, set_seed, sep_cfgs
+from utils import load_config, get_exp_name, set_seed, sep_cfgs, custom_collate_fn
 from my_dataset import XRayDataset
 from my_models import MyModels
 from my_augmentations import MyAugs
 from my_trainer import MyTrainer
+from my_criterion import MyCriterion
 
 # visualization
 # import matplotlib.pyplot as plt
@@ -102,21 +103,25 @@ def main(args):
         batch_size=train_cfg['batch_size'],
         shuffle=train_cfg['shuffle'],
         num_workers=train_cfg['num_workers'],
-        drop_last=train_cfg['drop_last']
+        drop_last=train_cfg['drop_last'],
+        collate_fn=custom_collate_fn
     )
     valid_loader = DataLoader(
         dataset=valid_dataset,
         batch_size=val_cfg['batch_size'],
         shuffle=val_cfg['shuffle'],
         num_workers=val_cfg['num_workers'],
-        drop_last=val_cfg['drop_last']
+        drop_last=val_cfg['drop_last'],
+        collate_fn=custom_collate_fn
     )
 
     # set model, optimizer, loss function
     my_model = MyModels(settings)
     model = getattr(my_model, train_cfg['models'])() # getattr 함수를 사용하여 cfg로만 모델을 불러올 수 있도록 함
 
-    criterion = nn.BCEWithLogitsLoss()
+    my_criterion = MyCriterion()
+    criterion = getattr(my_criterion, settings['criterion'])
+
     optimizer = optim.Adam(params=model.parameters(), lr=train_cfg['lr'], weight_decay=train_cfg['weight_decay'])
 
     # 실험 시작

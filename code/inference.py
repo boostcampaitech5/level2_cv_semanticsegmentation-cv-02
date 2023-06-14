@@ -4,6 +4,9 @@ import os.path as osp
 from argparse import ArgumentParser
 from pprint import pprint
 from tqdm import tqdm
+import random
+import cv2
+import matplotlib.pyplot as plt
 
 # external library
 import numpy as np
@@ -19,7 +22,7 @@ from torch.utils.data import DataLoader
 from my_dataset import XRayInferenceDataset
 from my_models import MyModels
 from my_augmentations import MyAugs
-from utils import load_config, sep_cfgs, get_exp_name
+from utils import load_config, sep_cfgs, get_exp_name, label2rgb, set_seed
 
 
 def parse_args():
@@ -113,12 +116,42 @@ def test(settings, model, data_loader, thr=0.5):
                     
     return rles, filename_and_class
 
+def visualization(rles,  filename_and_class, args, settings):
+
+    #5개 이미지 랜덤 샘플링
+    image_len = [i for i in range(len(filename_and_class)//29)]
+    image_num = random.sample(image_len, 5)
+
+    SAVE_PATH = f'../example_image/{get_exp_name(args.config_path)}'
+
+    if not osp.exists(SAVE_PATH):
+        os.makedirs(SAVE_PATH)
+
+    for idx in image_num:
+        image = cv2.imread(osp.join(settings['tt_image_root'], filename_and_class[idx*29].split("_")[1]))
+        preds = []
+        
+        for rle in rles[idx*29: idx*29+29]:
+            pred = decode_rle_to_mask(rle, height=2048, width=2048)
+            preds.append(pred)
+
+        preds = np.stack(preds, 0)
+
+        fig, ax = plt.subplots(1, 2, figsize=(24, 12))
+        ax[0].imshow(image)    # remove channel dimension
+        ax[1].imshow(label2rgb(preds))
+
+        plt.savefig(osp.join(SAVE_PATH, f'{idx}.png'))
+
 
 def main(args):
     configs = load_config(args.config_path)
     pprint(configs)
 
     settings, train_cfg, _, test_cfg = sep_cfgs(configs)
+
+    #seed fix
+    set_seed(21)
 
     pngs = {
         osp.relpath(osp.join(root, fname), start=settings['tt_image_root'])
@@ -142,6 +175,9 @@ def main(args):
     model = torch.load(args.model_path)
 
     rles, filename_and_class = test(settings, model, test_loader)
+
+    #시각화
+    visualization(rles, filename_and_class, args, settings)
 
     # To CSV
     classes, filename = zip(*[x.split("_") for x in filename_and_class])

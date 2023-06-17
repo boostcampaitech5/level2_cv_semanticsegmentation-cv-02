@@ -13,9 +13,10 @@ import wandb
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
+from torch.optim import lr_scheduler
 
 # custom modules
-from utils import load_config, get_exp_name, set_seed, sep_cfgs, custom_collate_fn
+from utils import load_config, get_exp_name, set_seed, sep_cfgs
 from my_dataset import XRayDataset
 from my_models import MyModels
 from my_augmentations import MyAugs
@@ -104,7 +105,6 @@ def main(args):
         shuffle=train_cfg['shuffle'],
         num_workers=train_cfg['num_workers'],
         drop_last=train_cfg['drop_last'],
-        collate_fn=custom_collate_fn
     )
     valid_loader = DataLoader(
         dataset=valid_dataset,
@@ -112,7 +112,6 @@ def main(args):
         shuffle=val_cfg['shuffle'],
         num_workers=val_cfg['num_workers'],
         drop_last=val_cfg['drop_last'],
-        collate_fn=custom_collate_fn
     )
 
     # set model, optimizer, loss function
@@ -123,12 +122,13 @@ def main(args):
     criterion = getattr(my_criterion, settings['criterion'])
 
     optimizer = optim.Adam(params=model.parameters(), lr=train_cfg['lr'], weight_decay=train_cfg['weight_decay'])
+    scheduler = lr_scheduler.MultiStepLR(optimizer, milestones=[5, 10, 20, 40, 60, 80], gamma=0.7)
 
     # 실험 시작
     my_trainer = MyTrainer(run_name, settings, train_cfg, val_cfg,
-                           model, train_loader, valid_loader, criterion, optimizer,
+                           model, train_loader, valid_loader, criterion, optimizer, scheduler,
                            num_train_batches, num_val_batches)
-    trainer = getattr(my_trainer, 'base_trainer')()
+    trainer = getattr(my_trainer, 'base_trainer')
     trainer()
 
 

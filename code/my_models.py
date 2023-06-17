@@ -80,7 +80,7 @@ class MyModels():
         
         return model
 
-     def deeplabv3plus_xception41p(self):
+    def deeplabv3plus_xception41p(self):
         model = smp.DeepLabV3Plus(
             encoder_name='tu-xception41p',
             encoder_depth=5,
@@ -117,6 +117,16 @@ class MyModels():
             encoder_weights="imagenet",    
             in_channels=3,                  
             classes=self.num_class,     
+        )
+
+        return model
+
+    def unet_hrnetw48(self):
+        model = smp.Unet(
+            encoder_name='tu-hrnet_w48',
+            encoder_weights='imagenet',
+            in_channels=3,
+            classes = self.num_class,
         )
 
         return model

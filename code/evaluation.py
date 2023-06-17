@@ -40,7 +40,6 @@ def validation(settings, device, epoch, model,
 
     with torch.no_grad():
         for images, masks in tqdm(data_loader, total=len(data_loader)):
-            images, masks = torch.from_numpy(images).float(), torch.from_numpy(masks).float()
             images, masks = images.to(device), masks.to(device)
 
             if settings['lib'] == 'smp':

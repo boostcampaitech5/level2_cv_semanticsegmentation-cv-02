@@ -28,11 +28,11 @@ settings:
     
 train:
   augs: 'dh_best_augs'
-  models: 'unet_resnet101'
+  models: 'unet_hrnetw48'
   num_epochs: 100
-  batch_size: 2
+  batch_size: 4
   shuffle: True
-  num_workers: 8
+  num_workers: 4
   drop_last: False
   lr: 0.0003
   log_interval: 40
@@ -45,7 +45,7 @@ val:
   num_workers: 2
   drop_last: False
   val_every: 1
-  val_save_limit: 10
+  val_save_limit: 5
 
 test:
   augs: 'resize_1024'

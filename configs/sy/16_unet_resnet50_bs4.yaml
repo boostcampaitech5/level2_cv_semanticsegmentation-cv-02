@@ -1,0 +1,55 @@
+settings:
+  # data path
+  image_root: "../data/train/DCM"
+  label_root: "../data/train/outputs_json"
+  tt_image_root: "../data/test/DCM"
+
+  # save path
+  saved_dir: "../trained_models"
+  submission_dir: "../submissions"
+
+  # seed
+  seed: 21
+
+  # classes of hand bone
+  classes: [
+    'finger-1', 'finger-2', 'finger-3', 'finger-4', 'finger-5',
+    'finger-6', 'finger-7', 'finger-8', 'finger-9', 'finger-10',
+    'finger-11', 'finger-12', 'finger-13', 'finger-14', 'finger-15',
+    'finger-16', 'finger-17', 'finger-18', 'finger-19', 'Trapezium',
+    'Trapezoid', 'Capitate', 'Hamate', 'Scaphoid', 'Lunate',
+    'Triquetrum', 'Pisiform', 'Radius', 'Ulna']
+
+  # library
+  lib: "smp"
+
+  # loss function
+  criterion: "combined_loss"
+    
+train:
+  augs: 'dh_best_augs'
+  models: 'unet_resnet50'
+  num_epochs: 100
+  batch_size: 4
+  shuffle: True
+  num_workers: 4
+  drop_last: False
+  lr: 0.0003
+  log_interval: 40
+  weight_decay: 0.00001
+
+val:
+  augs: 'resize_1024'
+  batch_size: 2
+  shuffle: False
+  num_workers: 2
+  drop_last: False
+  val_every: 1
+  val_save_limit: 10
+
+test:
+  augs: 'resize_1024'
+  batch_size: 2
+  shuffle: False
+  num_workers: 2
+  drop_last: False

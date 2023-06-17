@@ -73,7 +73,6 @@ class XRayDataset(Dataset):
         image_path = osp.join(self.settings['image_root'], image_name)
 
         image = cv2.imread(image_path)
-        # image = image / 255.
         image = np.array(image, dtype=np.float32) / 255.
 
         label_name = self.labelnames[item]
@@ -109,8 +108,8 @@ class XRayDataset(Dataset):
         image = image.transpose(2, 0, 1)
         label = label.transpose(2, 0, 1)
 
-        # image = torch.from_numpy(image).float()
-        # label = torch.from_numpy(label).float()
+        image = torch.from_numpy(image).float()
+        label = torch.from_numpy(label).float()
 
         return image, label
 

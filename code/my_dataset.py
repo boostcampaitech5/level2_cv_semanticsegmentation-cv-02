@@ -43,7 +43,7 @@ class XRayDataset(Dataset):
         for i, (x, y) in enumerate(gkf.split(_filenames, ys, groups)):
             if is_train:
                 # 0번을 validation dataset으로 사용합니다.
-                if i == 0:
+                if i == 1:
                     continue
 
                 filenames += list(_filenames[y])
@@ -67,13 +67,19 @@ class XRayDataset(Dataset):
 
     def __len__(self):
         return len(self.filenames)
-    
+
+    def customcollatefn(self, sample):
+        img,label = list(zip(*sample))
+        img = np.array(img,dtype=np.float32)
+        label = np.array(label,dtype=np.float32)
+        return img,label
+
     def __getitem__(self, item):
         image_name = self.filenames[item]
         image_path = osp.join(self.settings['image_root'], image_name)
 
         image = cv2.imread(image_path)
-        image = np.array(image, dtype=np.float32) / 255.
+        image = np.array(image, dtype=np.float32) / 255.0
 
         label_name = self.labelnames[item]
         label_path = osp.join(self.settings['label_root'], label_name)
@@ -131,7 +137,7 @@ class XRayInferenceDataset(Dataset):
         image_path = osp.join(self.settings['tt_image_root'], image_name)
         
         image = cv2.imread(image_path)
-        image = image / 255.
+        image = np.array(image, dtype=np.float32) / 255.0
         
         if self.transforms is not None:
             inputs = {"image": image}
@@ -139,6 +145,37 @@ class XRayInferenceDataset(Dataset):
             image = result["image"]
 
         # to tensor will be done later
+        image = image.transpose(2, 0, 1)    # make channel first
+        
+        image = torch.from_numpy(image).float()
+            
+        return image, image_name
+
+class ensemble_XRayInferenceDataset(Dataset):
+    def __init__(self, pngs, IMAGE_ROOT, transforms=None):
+        _filenames = pngs
+        _filenames = np.array(sorted(_filenames))
+        
+        self.filenames = _filenames
+        self.transforms = transforms
+        self.IMAGE_ROOT = IMAGE_ROOT
+
+    def __len__(self):
+        return len(self.filenames)
+    
+    def __getitem__(self, item):
+        image_name = self.filenames[item]
+        image_path = os.path.join(self.IMAGE_ROOT, image_name)
+        
+        image = cv2.imread(image_path)
+        image = image / 255.
+        
+        if self.transforms is not None:
+            inputs = {"image": image}
+            result = self.transforms(**inputs)
+            image = result["image"]
+
+        # to tenser will be done later
         image = image.transpose(2, 0, 1)    # make channel first
         
         image = torch.from_numpy(image).float()

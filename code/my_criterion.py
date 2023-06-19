@@ -1,11 +1,17 @@
 # torch
 import torch
 import torch.nn.functional as F
+import torch.nn as nn
 
 
 class MyCriterion():
     def __init__(self):
         pass
+
+    def bce_with_logit_loss(self, inputs, targets):
+        criterion = nn.BCEWithLogitsLoss()
+
+        return criterion(inputs, targets)
 
     def focal_loss(self, inputs, targets, alpha=.25, gamma=2) : 
         inputs = F.sigmoid(inputs)       

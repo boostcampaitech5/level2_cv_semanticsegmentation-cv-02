@@ -128,7 +128,7 @@ def main(args):
     my_trainer = MyTrainer(run_name, settings, train_cfg, val_cfg,
                            model, train_loader, valid_loader, criterion, optimizer, scheduler,
                            num_train_batches, num_val_batches)
-    trainer = getattr(my_trainer, 'base_trainer')
+    trainer = getattr(my_trainer, settings['trainer'])
     trainer()
 
 
@@ -142,4 +142,3 @@ if __name__ == '__main__':
 
     # 실험 시작
     main(args)
-    

@@ -13,6 +13,11 @@ class MyAugs():
 
         return tf
     
+    def resize_1536(self):
+        tf = A.Resize(1536, 1536)
+
+        return tf
+    
     def resize_512_imagenet_normalize(self):
         tf = A.Compose([
             A.Resize(512, 512),

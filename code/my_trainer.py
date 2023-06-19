@@ -129,78 +129,79 @@ class MyTrainer():
                     print(f"Model is saved in {os.path.join(save_dir, save_file_name)}")
 
     # TODO: gradient accumulation trainer 구현
-    # def gradient_accumulation_trainer(self):
-    #     print(f"Start training with Gradient Accumulation...")
-    #     model = self.model.to(self.device)
+    def gradient_accumulation_trainer(self):
+        print(f"Start training with Gradient Accumulation...")
+        model = self.model.to(self.device)
 
-    #     best_dice = 0.
-    #     saved_models = deque()
-    #     # training loop
-    #     for epoch in range(self.train_cfg['num_epochs']):
-    #         model.train()
+        best_dice = 0.
+        saved_models = deque()
+        # training loop
+        for epoch in range(self.train_cfg['num_epochs']):
+            model.train()
 
-    #         total_loss, accumulation_loss = 0., 0.
-    #         self.optimizer.zero_grad()
-    #         for step, (images, masks) in enumerate(self.train_loader):
-    #             # gpu 연산을 위해 device 할당
-    #             images, masks = images.to(self.device), masks.to(self.device)
+            total_loss, accumulation_loss = 0., 0.
+            self.optimizer.zero_grad()
+            for step, (images, masks) in enumerate(self.train_loader):
+                # gpu 연산을 위해 device 할당
+                images, masks = images.to(self.device), masks.to(self.device)
 
-    #             # forward
-    #             if self.settings['lib'] == 'smp':
-    #                 outputs = model(images)
-    #             else:
-    #                 outputs = model(images)['out']
+                # forward
+                if self.settings['lib'] == 'smp':
+                    outputs = model(images)
+                else:
+                    outputs = model(images)['out']
 
-    #             # loss 계산 & normalize
-    #             loss = self.criterion(outputs, masks)
-    #             loss = loss / self.accumulation_step
-    #             loss.backward()
+                # loss 계산 & normalize
+                loss = self.criterion(outputs, masks)
+                loss = loss / self.accumulation_step
+                loss.backward()
 
-    #             accumulation_loss += loss.item()
+                accumulation_loss += loss.item()
 
-    #             # accumulation step의 배수일 때만 parameters update
-    #             if (step + 1) % self.accumulation_step == 0:
-    #                 self.optimizer.step()
-    #                 self.optimizer.zero_grad()
-    #                 total_loss += accumulation_loss
-
-    #             # log_interval에 따라 training 과정 중 연산된 값들을 출력
-    #             if (step + 1) % self.train_cfg['log_interval'] == 0:
-    #                 print(
-    #                     f'Epoch [{epoch + 1}/{self.train_cfg["num_epochs"]}], '
-    #                     f'Step [{step + 1}/{len(self.train_loader)}], '
-    #                     f'Loss: {round(loss.item(), 4)}'
-    #                 )
-
-    #         self.scheduler.step()
-            
-    #         # wandb 기록 - training
-    #         wandb.log({
-    #             "Epoch": epoch + 1,
-    #             "Train/Mean_Epoch_Loss": round(total_loss / self.num_train_batches, 4),
-    #         })
-            
-    #         # evaluation
-    #         save_dir = os.path.join(self.settings['saved_dir'], self.save_dir_name)
-
-    #         if (epoch + 1) % self.val_cfg['val_every'] == 0:
-    #             dice = validation(self.settings, self.device, epoch + 1,
-    #                             model, self.val_loader, self.criterion, self.num_val_batches) # wandb 기록은 validation 함수 내부에서 진행됨
-
-    #             if best_dice < dice:
-    #                 print(f"Best performance at epoch: {epoch + 1}, {best_dice:.4f} -> {dice:.4f}")
-    #                 best_dice = dice
+                # accumulation step의 배수일 때만 parameters update & log 출력
+                if (step + 1) % self.accumulation_step == 0:
+                    self.optimizer.step()
+                    self.optimizer.zero_grad()
+                    total_loss += accumulation_loss
                     
-    #                 if len(saved_models) >= self.val_cfg['val_save_limit']:
-    #                     # Delete the oldest model
-    #                     oldest_model_path = saved_models.popleft()
-    #                     os.remove(os.path.join(save_dir, oldest_model_path))
-    #                     print(f"{oldest_model_path} is deleted")
+                    print(
+                        f'Epoch [{epoch + 1}/{self.train_cfg["num_epochs"]}], '
+                        f'Step [{(step + 1) // self.accumulation_step}/{len(self.train_loader) // self.accumulation_step}], '
+                        f'Loss: {round(accumulation_loss, 4)}'
+                    )
+
+                    # 초기화
+                    accumulation_loss = 0.
+
+            # self.scheduler.step()
+            
+            # wandb 기록 - training
+            wandb.log({
+                "Epoch": epoch + 1,
+                "Train/Mean_Epoch_Loss": round(total_loss / (len(self.train_loader) // self.accumulation_step), 4),
+            })
+            
+            # evaluation
+            save_dir = os.path.join(self.settings['saved_dir'], self.save_dir_name)
+
+            if (epoch + 1) % self.val_cfg['val_every'] == 0:
+                dice = validation(self.settings, self.device, epoch + 1,
+                                model, self.val_loader, self.criterion, self.num_val_batches) # wandb 기록은 validation 함수 내부에서 진행됨
+
+                if best_dice < dice:
+                    print(f"Best performance at epoch: {epoch + 1}, {best_dice:.4f} -> {dice:.4f}")
+                    best_dice = dice
                     
-    #                 # Save the current model
-    #                 save_file_name = f"{self.train_cfg['models']}_{epoch+1}_{dice:.4f}.pt"
+                    if len(saved_models) >= self.val_cfg['val_save_limit']:
+                        # Delete the oldest model
+                        oldest_model_path = saved_models.popleft()
+                        os.remove(os.path.join(save_dir, oldest_model_path))
+                        print(f"{oldest_model_path} is deleted")
+                    
+                    # Save the current model
+                    save_file_name = f"{self.train_cfg['models']}_{epoch+1}_{dice:.4f}.pt"
 
-    #                 save_model(model, save_dir, save_file_name)
-    #                 saved_models.append(save_file_name)
+                    save_model(model, save_dir, save_file_name)
+                    saved_models.append(save_file_name)
 
-    #                 print(f"Model is saved in {os.path.join(save_dir, save_file_name)}")
+                    print(f"Model is saved in {os.path.join(save_dir, save_file_name)}")

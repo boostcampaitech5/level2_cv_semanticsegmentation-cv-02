@@ -94,8 +94,6 @@ class MyTrainer():
                         f'Step [{step + 1}/{len(self.train_loader)}], '
                         f'Loss: {round(loss.item(), 4)}'
                     )
-
-            self.scheduler.step()
             
             # wandb 기록 - training
             wandb.log({
@@ -109,6 +107,8 @@ class MyTrainer():
             if (epoch + 1) % self.val_cfg['val_every'] == 0:
                 dice = validation(self.settings, self.device, epoch + 1,
                                 model, self.val_loader, self.criterion, self.num_val_batches) # wandb 기록은 validation 함수 내부에서 진행됨
+
+                self.scheduler.step(dice)
 
                 if best_dice < dice:
                     print(f"Best performance at epoch: {epoch + 1}, {best_dice:.4f} -> {dice:.4f}")
@@ -173,7 +173,7 @@ class MyTrainer():
                     # 초기화
                     accumulation_loss = 0.
 
-            # self.scheduler.step()
+            self.scheduler.step()
             
             # wandb 기록 - training
             wandb.log({

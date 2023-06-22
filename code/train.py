@@ -122,7 +122,10 @@ def main(args):
     criterion = getattr(my_criterion, settings['criterion'])
 
     optimizer = optim.Adam(params=model.parameters(), lr=train_cfg['lr'], weight_decay=train_cfg['weight_decay'])
-    scheduler = lr_scheduler.MultiStepLR(optimizer, milestones=[5, 10, 20, 40, 60, 80], gamma=0.7)
+    # scheduler = lr_scheduler.MultiStepLR(optimizer, milestones=[5, 10, 20, 40, 60, 80], gamma=0.7)
+    scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, mode='max',
+                                               factor=0.34, patience=5,
+                                               min_lr=1e-6, verbose=True)
 
     # 실험 시작
     my_trainer = MyTrainer(run_name, settings, train_cfg, val_cfg,

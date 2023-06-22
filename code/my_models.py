@@ -126,7 +126,31 @@ class MyModels():
             encoder_name='tu-hrnet_w48',
             encoder_weights='imagenet',
             in_channels=3,
-            classes = self.num_class,
+            classes=self.num_class,
+        )
+
+        return model
+    
+    def unet_hrnetw48_encoder_depth4(self):
+        model = smp.Unet(
+            encoder_name='tu-hrnet_w48',
+            encoder_depth=4,
+            encoder_weights='imagenet',
+            decoder_channels=[384, 192, 64, 32],
+            in_channels=3,
+            classes=self.num_class
+        )
+
+        return model
+    
+    def unet_hrnetw48_encoder_depth3(self):
+        model = smp.Unet(
+            encoder_name='tu-hrnet_w48',
+            encoder_depth=3,
+            encoder_weights='imagenet',
+            decoder_channels=[128, 64, 32],
+            in_channels=3,
+            classes=self.num_class
         )
 
         return model

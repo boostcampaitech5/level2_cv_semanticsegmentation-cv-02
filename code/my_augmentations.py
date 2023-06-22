@@ -36,7 +36,7 @@ class MyAugs():
         """
         tf = A.Compose([
             A.Resize(1024, 1024),
-            A.Rotate(limit=50, p=0.5),
+            A.Rotate(limit=40, p=0.5),
             A.RandomBrightnessContrast(p=0.5),
             A.GridDropout(ratio=0.2, random_offset=True,
                           holes_number_x=4, holes_number_y=4, p=0.5)
@@ -63,6 +63,19 @@ class MyAugs():
             A.RandomShadow(p=0.2),
             A.GridDropout(ratio=0.2, random_offset=True, holes_number_x=4, holes_number_y=4, p=0.5),
             A.ElasticTransform(alpha=1, sigma=50, alpha_affine=50, p=0.5)
+        ])
+
+        return tf
+    
+    def last_exp_augs(self):
+        tf = A.Compose([
+            A.Resize(1024, 1024),
+            A.Affine(scale=(0.9, 1.1),
+                     translate_percent=(-0.05, 0.05),
+                     rotate=(-40, 40),
+                     p=0.5),
+            A.RandomBrightnessContrast(p=0.4),
+            A.GridDropout(ratio=0.2, random_offset=True, holes_number_x=4, holes_number_y=4, p=0.5)
         ])
 
         return tf

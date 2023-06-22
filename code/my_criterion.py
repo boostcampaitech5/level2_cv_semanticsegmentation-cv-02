@@ -49,3 +49,13 @@ class MyCriterion():
         loss = focal * weight + dice*(1-weight)
 
         return loss
+    
+    def bce_and_dice_loss(self, pred, target, weight=0.3):
+        bce = self.bce_with_logit_loss(pred, target)
+        
+        pred = F.sigmoid(pred)
+        dice = self.dice_loss(pred, target)
+        
+        loss = bce * weight + dice * (1 - weight)
+
+        return loss

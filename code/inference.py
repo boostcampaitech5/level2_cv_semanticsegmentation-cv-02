@@ -96,7 +96,7 @@ def test(settings, model, data_loader, thr=0.5):
         n_class = len(settings['classes'])
 
         for step, (images, image_names) in tqdm(enumerate(data_loader), total=len(data_loader)):
-            images = images.cuda()
+            images = images.to(device)
             
             if settings['lib'] == 'smp':
                 outputs = model(images)
@@ -118,7 +118,7 @@ def test(settings, model, data_loader, thr=0.5):
 
 def visualization(rles,  filename_and_class, args, settings):
 
-    #5개 이미지 랜덤 샘플링
+    # 5개 이미지 랜덤 샘플링
     image_len = [i for i in range(len(filename_and_class)//29)]
     image_num = random.sample(image_len, 5)
 

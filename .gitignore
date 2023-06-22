@@ -5,6 +5,7 @@ code/__pycache__
 trained_models/
 submissions/
 example_image
+nohup/
 
 # 불필요한 파일들
 code/*.out

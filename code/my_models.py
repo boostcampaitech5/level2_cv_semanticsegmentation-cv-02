@@ -142,7 +142,7 @@ class MyModels():
         )
 
         return model
-    
+        
     def unet_hrnetw48_encoder_depth3(self):
         model = smp.Unet(
             encoder_name='tu-hrnet_w48',
@@ -154,7 +154,7 @@ class MyModels():
         )
 
         return model
-        
+
     def unet_efficientnetb4(self):
         model = smp.Unet(
             encoder_name="efficientnet-b4",        
